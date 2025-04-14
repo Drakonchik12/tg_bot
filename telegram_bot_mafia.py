@@ -1,38 +1,34 @@
 import asyncio
 import random
 from pymongo import MongoClient
-from aiogram import Bot, Dispatcher, types, F
+from aiogram import types, F
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.fsm.context import FSMContext
-from registration import register_user, main_keyboard
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from user_data import show_user_data, edit_nickname, edit_nickname_keyboard
-from easy_game import first_npc_messages, first_night, get_info_for_game, stop_keyboard, first_day
+
+
+from handlers.user_data import show_user_data, edit_nickname
+from game.easy_game import first_npc_messages, first_night, get_info_for_game, stop_keyboard, first_day
 from Test.npc_role_doing import night
 
-TOKEN = "7816519995:AAFmGKyRikmRqXsYytD9m5ti7GUd2EB1j5s"  # Замініть на свій токен
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher()
+
+from db import users_collection, games_collection
+from bot import bot, dp
+from keyboards.main import main_keyboard
+from keyboards.difficult import difficulty_keyboard
+from keyboards.ok import ok_keyboard
+from keyboards.yes_no import keyboard_yes_no
+from handlers import start  
+
+dp.include_router(start.start_router)
+
+
 
 active_votes = {}
 
-keyboard = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="OK", callback_data="ok_pressed")]
-])
-
-keyboard_yes_no = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Так"), KeyboardButton(text="Ні")],
-    ],
-    resize_keyboard=True
-)
 
 
-client = MongoClient("mongodb://oopden334:oopden334@cluster0-shard-00-00.lpqnt.mongodb.net:27017,cluster0-shard-00-01.lpqnt.mongodb.net:27017,cluster0-shard-00-02.lpqnt.mongodb.net:27017/?replicaSet=atlas-nidltb-shard-0&ssl=true&authSource=admin&retryWrites=true&w=majority&appName=Cluster0")  
-db = client["mafia_game"]
-users_collection = db["Users"]
-games_collection = db["Games"] 
 
 
 
@@ -71,35 +67,13 @@ async def easy_game_first_voit_no(message: types.Message, state: FSMContext):
 
 @dp.message(F.text == "Мої дані")
 async def my_data(message: types.Message):
-    await show_user_data(message, users_collection, games_collection)
+    await show_user_data(message)
 
 async def main():
     await dp.start_polling(bot)
 # Панель для вибору рівня складності
-difficulty_keyboard = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Легка"), KeyboardButton(text="Середня"), KeyboardButton(text="Складна")],
-        [KeyboardButton(text="Назад")]
-    ],
-    resize_keyboard=True
-)
 
-# Обробник команди /start
-@dp.message(F.text == "/start")
-async def start_command(message: types.Message):
-    user_id = message.from_user.id
-   
-    user = users_collection.find_one({"tg_id": user_id})
-    
-    if user:
-        await message.answer(f"Вітаю, {user['nickname']}! Радий, що ви повернулися!", reply_markup=main_keyboard)
-    else:
-        await message.answer("Вітаю! Будь ласка, введіть ваш нікнейм для реєстрації.")
-        dp.message.register(register_nickname)
 
-# Очікуємо введення нікнейму
-async def register_nickname(message: types.Message):
-    await register_user(message, users_collection)
 
 @dp.message(F.text == "Редагувати нікнейм")
 async def request_new_nickname(message: types.Message):
@@ -115,7 +89,7 @@ async def easy_game(message: types.Message, state: FSMContext):
     global game_difficult
     game_difficult = "Легка"
     await first_npc_messages(message, state)
-    await message.answer("Натисни 'OK' щоб продовжити", reply_markup=keyboard)
+    await message.answer("Натисни 'OK' щоб продовжити", reply_markup=ok_keyboard)
 
 
 @dp.message(F.text == "Назад")

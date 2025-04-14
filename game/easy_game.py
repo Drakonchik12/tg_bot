@@ -7,7 +7,7 @@ import random
 from aiogram.fsm.context import FSMContext
 from aiogram import F
 from pymongo import MongoClient
-from user_data import main_keyboard
+from handlers.user_data import main_keyboard
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import State, StatesGroup
 from GameMassage import assign_messages_to_npcs
@@ -15,8 +15,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 from aiogram import Bot, Dispatcher, types
 
 
-
-
+from keyboards.stop import stop_keyboard
+from db import users_collection, roles_collection, games_collection
 
 user = None
 npcs = []
@@ -25,19 +25,6 @@ storage = MemoryStorage()
 dp = Dispatcher( storage=storage)
 
 
-
-client = MongoClient("mongodb://oopden334:oopden334@cluster0-shard-00-00.lpqnt.mongodb.net:27017,cluster0-shard-00-01.lpqnt.mongodb.net:27017,cluster0-shard-00-02.lpqnt.mongodb.net:27017/?replicaSet=atlas-nidltb-shard-0&ssl=true&authSource=admin&retryWrites=true&w=majority&appName=Cluster0")  
-db = client["mafia_game"]
-users_collection = db["Users"]
-roles_collection = db["Roles"]
-games_collection = db["Games"]
-
-stop_keyboard = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Завершити")]
-    ],
-    resize_keyboard=True
-)
 
 
 def fill_npcs():

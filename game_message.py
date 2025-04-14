@@ -1,10 +1,12 @@
 import json
 import random
+import os
+
 
 
 def load_role_messages(role):
     try:
-        filename = role + ".json"
+        filename = os.path.join("info_json", f"{role}.json")
 
         with open(filename, "r", encoding="utf-8") as file:
             data = json.load(file)

@@ -2,7 +2,7 @@ import random
 from aiogram import types
 import asyncio
 from aiogram import Bot, Dispatcher, types, F
-from easy_game import first_day
+from game.easy_game import first_day
 from aiogram.fsm.context import FSMContext
 from pymongo import MongoClient
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
