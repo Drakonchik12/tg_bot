@@ -8,7 +8,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 
 
 from handlers.user_data import show_user_data, edit_nickname
-from game.easy_game import first_npc_messages, first_night, get_info_for_game, stop_keyboard, first_day
+from modules.newgame.service import first_npc_messages, first_night, get_info_for_game, stop_keyboard, first_day
 from npc_role_doing import night
 from utils.keyboards.keyboards_common import create_common_keyboard
 
