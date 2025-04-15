@@ -1,2 +1,4 @@
 aiogram
 pymongo
+dotenv
+certifi
