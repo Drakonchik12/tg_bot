@@ -10,7 +10,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 from handlers.user_data import show_user_data, edit_nickname
 from game.easy_game import first_npc_messages, first_night, get_info_for_game, stop_keyboard, first_day
 from npc_role_doing import night
-
+from utils.keyboards.keyboards_common import create_common_keyboard
 
 
 from db import users_collection, games_collection
@@ -124,12 +124,8 @@ async def voting(message: types.Message, state: FSMContext, user, npcs):
     active_votes[chat_id] = {"votes": votes, "npcs": npcs, "user": user}
 
     # Кнопки для голосування
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=npc.name, callback_data=f"vote_{npc.npc_id}")] for npc in npcs
-        ]
-    )
-
+    keyboard = create_common_keyboard([(npc.name, f"vote_{npc.npc_id}") for npc in npcs])
+    
     await message.answer("🔸 За кого ви голосуєте?", reply_markup=keyboard)
 
 # 🔹 Обробка голосу користувача

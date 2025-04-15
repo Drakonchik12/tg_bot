@@ -6,6 +6,7 @@ from game.easy_game import first_day
 from aiogram.fsm.context import FSMContext
 from pymongo import MongoClient
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from utils.keyboards.keyboards_common import create_common_keyboard
 
 active_votes = {}
 dp = Dispatcher()
@@ -110,11 +111,12 @@ async def voting(message: types.Message, state: FSMContext, user, npcs):
     active_votes[chat_id] = {"votes": votes, "npcs": npcs, "user": user}
 
     # Кнопки для голосування
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text=npc.name, callback_data=f"vote_{npc.npc_id}")] for npc in npcs
-        ]
-    )
+    keyboard = create_common_keyboard([(npc.name, f"vote_{npc.npc_id}") for npc in npcs])
+    # keyboard = InlineKeyboardMarkup(
+    #     inline_keyboard=[
+    #         [InlineKeyboardButton(text=npc.name, callback_data=f"vote_{npc.npc_id}")] for npc in npcs
+    #     ]
+    # )
 
     await message.answer("🔸 За кого ви голосуєте?", reply_markup=keyboard)
 
