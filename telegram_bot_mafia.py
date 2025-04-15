@@ -9,7 +9,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 
 from handlers.user_data import show_user_data, edit_nickname
 from game.easy_game import first_npc_messages, first_night, get_info_for_game, stop_keyboard, first_day
-from Test.npc_role_doing import night
+from npc_role_doing import night
 
 
 
@@ -81,7 +81,7 @@ async def request_new_nickname(message: types.Message):
     dp.message.register(update_nickname)
 
 async def update_nickname(message: types.Message):
-    await edit_nickname(message, users_collection)
+    await edit_nickname(message)
 
 
 @dp.message(F.text == "Легка")

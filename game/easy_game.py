@@ -10,7 +10,7 @@ from pymongo import MongoClient
 from handlers.user_data import main_keyboard
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import State, StatesGroup
-from GameMassage import assign_messages_to_npcs
+from game_message import assign_messages_to_npcs
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from aiogram import Bot, Dispatcher, types
 
