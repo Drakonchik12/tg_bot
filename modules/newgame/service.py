@@ -7,7 +7,7 @@ import random
 from aiogram.fsm.context import FSMContext
 from aiogram import F
 from pymongo import MongoClient
-from handlers.user_data import main_keyboard
+from utils.keyboards.main import main_keyboard
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import State, StatesGroup
 from game_message import assign_messages_to_npcs
