@@ -25,4 +25,5 @@ async def edit_nickname(message: types.Message):
     users_collection.update_one({"tg_id": user_id}, {"$set": {"nickname": new_nickname}})
     await message.answer(f"✅ Ваш нікнейм оновлено: {new_nickname}", reply_markup=main_keyboard)
 
-
+async def update_nickname(message: types.Message):
+    await edit_nickname(message)
