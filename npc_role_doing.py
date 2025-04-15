@@ -6,7 +6,7 @@ from modules.newgame.service import first_day
 from aiogram.fsm.context import FSMContext
 from pymongo import MongoClient
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from utils.keyboards.keyboards_common import create_common_keyboard
+from common.keyboards.keyboards_common import create_common_keyboard
 
 active_votes = {}
 dp = Dispatcher()

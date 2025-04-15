@@ -1,7 +1,7 @@
 from aiogram import types, Router, F
-from utils.keyboards.main import main_keyboard
+from common.keyboards.main import main_keyboard
 from db import users_collection
-from .register import register_user  # імпортуємо функцію реєстрації, якщо вона в іншому файлі
+from modules.main.service import register_nickname  # імпортуємо функцію реєстрації, якщо вона в іншому файлі
 
 router = Router()
 
@@ -16,10 +16,6 @@ async def start_command(message: types.Message):
     else:
         await message.answer("Вітаю! Будь ласка, введіть ваш нікнейм для реєстрації.")
         router.message.register(register_nickname)
-
-# Очікуємо введення нікнейму
-async def register_nickname(message: types.Message):
-    await register_user(message)
 
 @router.message(F.text == "Назад")
 async def back_to_main(message: types.Message):

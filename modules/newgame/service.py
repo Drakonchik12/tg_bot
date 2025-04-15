@@ -7,16 +7,16 @@ import random
 from aiogram.fsm.context import FSMContext
 from aiogram import F
 from pymongo import MongoClient
-from utils.keyboards.main import main_keyboard
+from common.keyboards.main import main_keyboard
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.state import State, StatesGroup
 from game_message import assign_messages_to_npcs
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from aiogram import Bot, Dispatcher, types
 from modules.newgame.texts import MESSAGES
-from utils.keyboards.keyboards_common import create_common_keyboard
+from common.keyboards.keyboards_common import create_common_keyboard
 
-from utils.keyboards.stop import stop_keyboard
+from common.keyboards.stop import stop_keyboard
 from db import users_collection, roles_collection, games_collection
 
 user = None

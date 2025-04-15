@@ -1,9 +1,9 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram import types, F, Router
-from utils.keyboards.difficult import difficulty_keyboard
-from utils.keyboards.ok import ok_keyboard
-from utils.keyboards.yes_no import keyboard_yes_no
+from common.keyboards.difficult import difficulty_keyboard
+from common.keyboards.ok import ok_keyboard
+from common.keyboards.yes_no import keyboard_yes_no
 from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting
 from bot import dp
 router = Router()

@@ -1,5 +1,5 @@
 from aiogram import types
-from utils.keyboards.main import main_keyboard 
+from common.keyboards.main import main_keyboard 
 from db import users_collection# Імпортуємо клавіатуру
 
 async def register_user(message: types.Message):
@@ -13,3 +13,7 @@ async def register_user(message: types.Message):
 
     users_collection.insert_one({"tg_id": user_id, "nickname": nickname})
     await message.answer(f"Реєстрація завершена! Ваш нік: {nickname}", reply_markup=main_keyboard)
+
+# Очікуємо введення нікнейму
+async def register_nickname(message: types.Message):
+    await register_user(message)
