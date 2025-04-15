@@ -1,5 +1,5 @@
 from aiogram import types, Router, F
-from keyboards.main import main_keyboard
+from utils.keyboards.main import main_keyboard
 from db import users_collection
 from .register import register_user  # імпортуємо функцію реєстрації, якщо вона в іншому файлі
 

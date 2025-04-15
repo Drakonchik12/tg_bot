@@ -15,10 +15,10 @@ from npc_role_doing import night
 
 from db import users_collection, games_collection
 from bot import bot, dp
-from keyboards.main import main_keyboard
-from keyboards.difficult import difficulty_keyboard
-from keyboards.ok import ok_keyboard
-from keyboards.yes_no import keyboard_yes_no
+from utils.keyboards.main import main_keyboard
+from utils.keyboards.difficult import difficulty_keyboard
+from utils.keyboards.ok import ok_keyboard
+from utils.keyboards.yes_no import keyboard_yes_no
 from handlers import start  
 
 dp.include_router(start.start_router)

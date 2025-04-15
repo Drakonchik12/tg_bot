@@ -15,7 +15,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 from aiogram import Bot, Dispatcher, types
 
 
-from keyboards.stop import stop_keyboard
+from utils.keyboards.stop import stop_keyboard
 from db import users_collection, roles_collection, games_collection
 
 user = None

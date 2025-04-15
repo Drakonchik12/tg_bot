@@ -1,6 +1,6 @@
 from aiogram import types
-from keyboards.main import main_keyboard
-from keyboards.edit_nickname import edit_nickname_keyboard
+from utils.keyboards.main import main_keyboard
+from utils.keyboards.edit_nickname import edit_nickname_keyboard
 from db import users_collection, games_collection
 
 async def show_user_data(message: types.Message):

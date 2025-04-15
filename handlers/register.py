@@ -1,5 +1,5 @@
 from aiogram import types
-from keyboards.main import main_keyboard 
+from utils.keyboards.main import main_keyboard 
 from db import users_collection# Імпортуємо клавіатуру
 
 async def register_user(message: types.Message):
