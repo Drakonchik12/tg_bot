@@ -85,7 +85,21 @@ async def mafia_vote(callback: CallbackQuery, state: FSMContext):
 async def easy_game(message: types.Message, state: FSMContext):
     global game_difficult
     game_difficult = "Легка"
-    await first_npc_messages(message, state)
+    await first_npc_messages(message, state, game_difficult)
+    await message.answer("Натисни 'OK' щоб продовжити", reply_markup=ok_keyboard)
+    
+@router.message(F.text == "Середня")
+async def easy_game(message: types.Message, state: FSMContext):
+    global game_difficult
+    game_difficult = "Середня"
+    await first_npc_messages(message, state, game_difficult)
+    await message.answer("Натисни 'OK' щоб продовжити", reply_markup=ok_keyboard)
+    
+@router.message(F.text == "Складна")
+async def easy_game(message: types.Message, state: FSMContext):
+    global game_difficult
+    game_difficult = "Складна"
+    await first_npc_messages(message, state, game_difficult)
     await message.answer("Натисни 'OK' щоб продовжити", reply_markup=ok_keyboard)
 
 @router.callback_query(F.data == "ok_pressed")

@@ -45,22 +45,54 @@ def insert_game_result(user_id: int, role: str, result: bool):
     games_collection.insert_one(game_data)
     return 
 
-def fill_npcs():
+def fill_npcs_4():
     return NPC.get_random_npcs_4()
+
+def fill_npcs_6():
+    return NPC.get_random_npcs_6()
+
+def fill_npcs_8():
+    return NPC.get_random_npcs_8()
+
+
 
 def show_npcs(npcs):
     return "\n".join([f"{npc.name}, {npc.job}, {npc.age} років" for npc in npcs])
 
-def assign_roles(user, npcs):
-    # roles = ["Мирний", "Мирний", "Мафія", "Комісар", "Лікар"]
-    roles = ["Мирний", "Мирний", "Мафія", "Комісар"]
-    random.shuffle(roles)
-    # Призначаємо роль користувачу
-    # user.role = roles.pop()
-    user.role = "Лікар"
-    # Призначаємо ролі NPC
+def assign_roles_4(user, npcs):
+    roles = ["Мирний", "Мирний", "Мафія", "Комісар", "Лікар"]
+    selected_role = random.choice(roles)
+    roles.remove(selected_role)
+    user.role = selected_role
+
     for npc in npcs:
-        npc.role = roles.pop()
+        selected_role = random.choice(roles)
+        roles.remove(selected_role)
+        npc.role = selected_role
+    return user, npcs
+
+def assign_roles_6(user, npcs):
+    roles = ["Мирний", "Мирний","Мирний","Мирний", "Мафія", "Комісар", "Лікар"]
+    selected_role = random.choice(roles)
+    roles.remove(selected_role)
+    user.role = selected_role
+
+    for npc in npcs:
+        selected_role = random.choice(roles)
+        roles.remove(selected_role)
+        npc.role = selected_role
+    return user, npcs
+
+def assign_roles_8(user, npcs):
+    roles = ["Мирний", "Мирний","Мирний","Мирний","Мирний","Мирний", "Мафія", "Комісар", "Лікар"]
+    selected_role = random.choice(roles)
+    roles.remove(selected_role)
+    user.role = selected_role
+
+    for npc in npcs:
+        selected_role = random.choice(roles)
+        roles.remove(selected_role)
+        npc.role = selected_role
     return user, npcs
 
 async def first_night_info_for_user(message: types.Message, state: FSMContext, user):
@@ -123,29 +155,65 @@ async def first_day(message: types.Message, state: FSMContext, npcs, user):
         await asyncio.sleep(3)
         await message.answer(f"{npc_name}: {npc_message}")    
 
-async def first_npc_messages(message: types.Message,state: FSMContext):
+async def first_npc_messages(message: types.Message,state: FSMContext, game_difficult):
 
     global user, npcs
     
     user_id = message.chat.id
 
     await message.answer(MESSAGES["game_exit_hint"], reply_markup=stop_keyboard)
-    npcs = fill_npcs()
     user = User.get_user_by_tg_id(user_id)
-
-    if user and npcs:
-        user, npcs = assign_roles(user, npcs)
-        await message.answer(
-            MESSAGES["game_started"].format(role=user.role),
-            parse_mode="HTML"
-        )
-        await asyncio.sleep(3)
-        await message.answer(
-            MESSAGES["npcs_intro"] + show_npcs(npcs),
-            parse_mode="HTML"
-        )
-    else:
-        await message.answer(MESSAGES["load_error"])
+    if game_difficult == "Легка":
+        npcs = fill_npcs_4()
+    
+        if user and npcs:
+            user, npcs = assign_roles_4(user, npcs)
+            await message.answer(
+                MESSAGES["game_started_e"].format(role=user.role),
+                parse_mode="HTML"
+            )
+            await asyncio.sleep(3)
+            await message.answer(
+                MESSAGES["npcs_intro"] + show_npcs(npcs),
+                parse_mode="HTML"
+            )
+        else:
+            await message.answer(MESSAGES["load_error"])
+    
+    if game_difficult == "Середня":
+        npcs = fill_npcs_6()
+    
+        if user and npcs:
+            user, npcs = assign_roles_6(user, npcs)
+            await message.answer(
+                MESSAGES["game_started_n"].format(role=user.role),
+                parse_mode="HTML"
+            )
+            await asyncio.sleep(3)
+            await message.answer(
+                MESSAGES["npcs_intro"] + show_npcs(npcs),
+                parse_mode="HTML"
+            )
+        else:
+            await message.answer(MESSAGES["load_error"])
+            
+    if game_difficult == "Складна":
+        npcs = fill_npcs_8()
+    
+        if user and npcs:
+            user, npcs = assign_roles_8(user, npcs)
+            await message.answer(
+                MESSAGES["game_started_h"].format(role=user.role),
+                parse_mode="HTML"
+            )
+            await asyncio.sleep(3)
+            await message.answer(
+                MESSAGES["npcs_intro"] + show_npcs(npcs),
+                parse_mode="HTML"
+            )
+        else:
+            await message.answer(MESSAGES["load_error"])
+    
 
     for npc in npcs:
         await asyncio.sleep(3)
