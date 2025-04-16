@@ -27,17 +27,17 @@ dp = Dispatcher( storage=storage)
 
 active_votes = {}
 
-async def insert_game_result(user_id: int, role: str, result: bool):
+def insert_game_result(user_id: int, role: str, result: bool):
 
     game_data = {
         "user_id": user_id,
-        "difficult": game_difficult,
+        # "difficult": game_difficult,
         "role_id": role,
         "result": result
     }
     
-    inserted = await games_collection.insert_one(game_data)
-    return inserted.inserted_id
+    inserted = games_collection.insert_one(game_data)
+    return 
 
 def fill_npcs():
     return NPC.get_random_npcs_4()
@@ -154,7 +154,7 @@ def get_info_for_game():
     return user, npcs
     
 # 🔹 Функція обробки результатів
-async def handle_voting_results(message: types.Message,state: FSMContext, user, npcs, votes):
+async def handle_voting_results(message: types.Message, state: FSMContext, user, npcs, votes):
     max_votes = max(votes.values())
     candidates = [npc_id for npc_id, v in votes.items() if v == max_votes]
 
@@ -162,22 +162,32 @@ async def handle_voting_results(message: types.Message,state: FSMContext, user, 
         eliminated_id = candidates[0]
         eliminated = next((npc for npc in npcs if str(npc.npc_id) == str(eliminated_id)), None)
 
-        if eliminated and eliminated.npc_id == user.user_id:
-            await message.answer("❌ Вас страчено. Ви програли.")
-            await insert_game_result(user.user_id, user.role, False)
+        if eliminated is None:
+            # NPC не найден — возможно, игрок уже выбыл. Убиваем игрока.
+            await message.answer(" ❌ Вас страчено. Ви програли.", reply_markup=main_keyboard)
+            insert_game_result(user.user_id, user.role, False)
+            return
+
+        if eliminated.npc_id == user.user_id:
+            await message.answer(" ❌ Вас страчено. Ви програли.", reply_markup=main_keyboard)
+            insert_game_result(user.user_id, user.role, False)
             return
         else:
-            npcs.remove(eliminated)
-            await message.answer(f"❌ {eliminated.name} страчено! Його роль була: {eliminated.role}")
+            if eliminated in npcs:
+                npcs.remove(eliminated)
 
+            await message.answer(f"❌ {eliminated.name} страчено! Його роль була: {eliminated.role}")
             if eliminated.role == "Мафія":
-                await message.answer("✅ Ви виграли! Мафія ліквідована.")
-                await insert_game_result(user.user_id, user.role, True)
+                await message.answer("✅ Ви виграли! Мафія ліквідована.", reply_markup=main_keyboard)
+                insert_game_result(user.user_id, user.role, True)
                 return
+
             print(npcs)
             await night(message, state, user, npcs)
     else:
         await message.answer("⚖️ Голоси розподілилися порівну! Повторне голосування серед кандидатів.")
+        await voting(message, state, user, npcs)
+
 
 async def night(message: types.Message, state:FSMContext, user, npcs):
     await asyncio.sleep(3)
@@ -238,8 +248,8 @@ async def mafia_kill(npcs, user, doctor_choice, message: types.Message):
     
     # Видаляємо жертву зі списку
     if victim == user:
-        await message.answer(f"❌ Вас вбили. Ви програли.")
-        await insert_game_result(user.user_id, user.role, False)
+        await message.answer(" ❌ Вас вбили. Ви програли.", reply_markup=main_keyboard)
+        insert_game_result(user.user_id, user.role, False)
         await message.answer("Повертаємось до головного меню.", reply_markup=main_keyboard)
         return None# Гра для користувача завершена
     else:
@@ -270,7 +280,7 @@ async def voting(message: types.Message, state: FSMContext, user, npcs):
             name_target = next(npc.name for npc in npcs if npc.npc_id == vote_target)
         print(name_target)
         votes[vote_target] += 1
-        # await message.answer(f"{npc.name} голосує за {name_target}")
+        await message.answer(f"{npc.name} голосує за {name_target}")
 
 
     # Зберігаємо голосування

@@ -6,8 +6,9 @@ from modules.support.handlers import router as support_router
 
 ALL_ROUTERS = [
     main_router,
+    support_router,
     # game_router,
     newgame_router,
     profile_router,
-    support_router
+    
 ]

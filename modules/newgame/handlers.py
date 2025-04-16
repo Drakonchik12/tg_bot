@@ -4,22 +4,20 @@ from aiogram import types, F, Router
 from common.keyboards.difficult import difficulty_keyboard
 from common.keyboards.ok import ok_keyboard
 from common.keyboards.yes_no import keyboard_yes_no
-from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting
+from common.keyboards.stop import stop_keyboard
+from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting, active_votes
 from bot import dp
 router = Router()
 
-active_votes = {}
 
 @router.message(F.text == "Нова гра")
 async def new_game(message: types.Message):
     await message.answer("Оберіть рівень складності:", reply_markup=difficulty_keyboard)
-
-# 🔹 Обробка голосу користувача
 @router.callback_query(F.data.startswith("vote_"))
 async def process_vote(callback: CallbackQuery, state: FSMContext):
     chat_id = callback.message.chat.id
     user_vote = callback.data.replace("vote_", "")
-
+    
     if chat_id not in active_votes:
         await callback.message.answer("⚠️ Помилка! Голосування не знайдено.")
         return
@@ -53,6 +51,7 @@ async def process_callback_ok(callback_query: CallbackQuery, state: FSMContext):
 async def easy_game_first_voit_yes(message: types.Message, state: FSMContext):
    print("Так")
    user, npcs = get_info_for_game()
+   await message.answer("Нагадуємо ви можете завершити гру в будь який момент", reply_markup=stop_keyboard)
    await voting(message,state, user, npcs)
 
 @router.message(F.text == "Ні")
