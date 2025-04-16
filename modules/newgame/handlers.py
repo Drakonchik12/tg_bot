@@ -5,7 +5,7 @@ from common.keyboards.difficult import difficulty_keyboard
 from common.keyboards.ok import ok_keyboard
 from common.keyboards.yes_no import keyboard_yes_no
 from common.keyboards.stop import stop_keyboard
-from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting, active_votes, handle_mafia_results, get_info_for_game, night, active_votes_mafia, active_votes_commissioner, handle_user_commissioner_info_results
+from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting, active_votes, handle_mafia_results, get_info_for_game, night, active_votes_mafia, active_votes_commissioner, handle_user_commissioner_info_results, active_votes_doctor, handle_user_user_doctor_results
 from bot import dp
 router = Router()
 
@@ -64,6 +64,22 @@ async def mafia_vote(callback: CallbackQuery, state: FSMContext):
     
     await callback.message.edit_text("✅ Ви обрали! Обробляємо результати...")
     await handle_user_commissioner_info_results(callback.message, state, user, npcs, commissioner_vote)
+    
+@router.callback_query(F.data.startswith("doctor_vote_"))
+async def mafia_vote(callback: CallbackQuery, state: FSMContext):
+    chat_id = callback.message.chat.id
+    doctor_vote = callback.data.replace("doctor_vote_", "")
+    
+    if chat_id not in active_votes_doctor:
+        await callback.message.answer("⚠️ Помилка! Вибір доктора не знайдено")
+        return
+    
+    npcs = active_votes_doctor[chat_id]["npcs"]
+    user = active_votes_doctor[chat_id]["user"]
+    
+    await callback.message.edit_text("✅ Ви обрали! Обробляємо результати...")
+    await handle_user_user_doctor_results(callback.message, state, user, npcs, doctor_vote)
+
 
 @router.message(F.text == "Легка")
 async def easy_game(message: types.Message, state: FSMContext):

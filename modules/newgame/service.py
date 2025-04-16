@@ -31,6 +31,8 @@ active_votes_mafia = {}
 
 active_votes_commissioner = {}
 
+active_votes_doctor = {}
+
 def insert_game_result(user_id: int, role: str, result: bool):
 
     game_data = {
@@ -51,11 +53,11 @@ def show_npcs(npcs):
 
 def assign_roles(user, npcs):
     # roles = ["Мирний", "Мирний", "Мафія", "Комісар", "Лікар"]
-    roles = ["Мирний", "Мирний", "Мафія", "Лікар"]
+    roles = ["Мирний", "Мирний", "Мафія", "Комісар"]
     random.shuffle(roles)
     # Призначаємо роль користувачу
     # user.role = roles.pop()
-    user.role = "Комісар"
+    user.role = "Лікар"
     # Призначаємо ролі NPC
     for npc in npcs:
         npc.role = roles.pop()
@@ -256,7 +258,17 @@ async def night(message: types.Message, state:FSMContext, user, npcs):
         await user_commissioner_info(message, state, npcs, user)
         
     elif role == "Лікар":
-        print("🟢 Ви — Лікар! Ви можете рятувати людей від мафії.")
+        await asyncio.sleep(3)
+        await message.answer("🔪 Мафія у пошуках жертви...")
+
+        await asyncio.sleep(3)
+        await message.answer("🕵️‍♂️ Комісар виходить на перевірку міста...")
+
+        await asyncio.sleep(3)
+        await message.answer("🏥 Лікар оглядає мешканців, шукаючи поранених...")
+        
+        await user_doctor_choice(message, state, npcs, user)
+        
     else:
         return "❓ Невідома роль!"   
     
@@ -278,7 +290,7 @@ async def mafia_kill(npcs, user, doctor_choice, message: types.Message):
         print(user_id)
         insert_game_result(user_id, user.role, False)
         await message.answer("Повертаємось до головного меню.", reply_markup=main_keyboard)
-        return None# Гра для користувача завершена
+        return # Гра для користувача завершена
     else:
         npcs = [npc for npc in npcs if npc != victim]
         await message.answer(f"❌ {victim.name} був вбитий мафією!")
@@ -389,6 +401,24 @@ async def handle_user_commissioner_info_results(message: types.Message, state: F
 
         doctor_ch = await doctor_choice(user, npcs)
         npcs = await mafia_kill(npcs, user, doctor_ch, message)
+
+        await message.answer("🌅 Наступає ранок. Місто прокидається.")
+        await first_day(message, state, npcs, user)
+        await voting(message, state, user, npcs)
+
+
+async def user_doctor_choice(message: types.Message, state: FSMContext, npcs, user):
+    keyboard = create_common_keyboard([(npc.name, f"doctor_vote_{npc.npc_id}") for npc in npcs])
+    chat_id = message.chat.id
+    active_votes_doctor[chat_id] = {"npcs": npcs, "user": user}
+
+    await message.answer("❔ Оберіть, кого ви хочете спасти цієї ночі:", reply_markup=keyboard)
+    
+
+
+async def handle_user_user_doctor_results(message: types.Message, state: FSMContext, user, npcs, doctor_vote):
+        print(doctor_vote)
+        npcs = await mafia_kill(npcs, user, doctor_vote, message)
 
         await message.answer("🌅 Наступає ранок. Місто прокидається.")
         await first_day(message, state, npcs, user)
