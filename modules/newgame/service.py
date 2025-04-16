@@ -36,7 +36,7 @@ def insert_game_result(user_id: int, role: str, result: bool):
         "result": result
     }
     
-    inserted = games_collection.insert_one(game_data)
+    games_collection.insert_one(game_data)
     return 
 
 def fill_npcs():
@@ -120,7 +120,7 @@ async def first_npc_messages(message: types.Message,state: FSMContext):
 
     global user, npcs
     
-    user_id = message.from_user.id
+    user_id = message.chat.id
 
     await message.answer(MESSAGES["game_exit_hint"], reply_markup=stop_keyboard)
     npcs = fill_npcs()
@@ -165,12 +165,16 @@ async def handle_voting_results(message: types.Message, state: FSMContext, user,
         if eliminated is None:
             # NPC не найден — возможно, игрок уже выбыл. Убиваем игрока.
             await message.answer(" ❌ Вас страчено. Ви програли.", reply_markup=main_keyboard)
-            insert_game_result(user.user_id, user.role, False)
+            user_id = message.chat.id
+            print(user_id)
+            insert_game_result(user_id, user.role, False)
             return
 
         if eliminated.npc_id == user.user_id:
             await message.answer(" ❌ Вас страчено. Ви програли.", reply_markup=main_keyboard)
-            insert_game_result(user.user_id, user.role, False)
+            user_id = message.chat.id
+            print(user_id)
+            insert_game_result(user_id, user.role, False)
             return
         else:
             if eliminated in npcs:
@@ -179,7 +183,9 @@ async def handle_voting_results(message: types.Message, state: FSMContext, user,
             await message.answer(f"❌ {eliminated.name} страчено! Його роль була: {eliminated.role}")
             if eliminated.role == "Мафія":
                 await message.answer("✅ Ви виграли! Мафія ліквідована.", reply_markup=main_keyboard)
-                insert_game_result(user.user_id, user.role, True)
+                user_id = message.chat.id
+                print(user_id)
+                insert_game_result(user_id, user.role, True)
                 return
 
             print(npcs)
@@ -249,7 +255,9 @@ async def mafia_kill(npcs, user, doctor_choice, message: types.Message):
     # Видаляємо жертву зі списку
     if victim == user:
         await message.answer(" ❌ Вас вбили. Ви програли.", reply_markup=main_keyboard)
-        insert_game_result(user.user_id, user.role, False)
+        user_id = message.chat.id
+        print(user_id)
+        insert_game_result(user_id, user.role, False)
         await message.answer("Повертаємось до головного меню.", reply_markup=main_keyboard)
         return None# Гра для користувача завершена
     else:
