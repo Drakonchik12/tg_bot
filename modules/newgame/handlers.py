@@ -5,7 +5,7 @@ from common.keyboards.difficult import difficulty_keyboard
 from common.keyboards.ok import ok_keyboard
 from common.keyboards.yes_no import keyboard_yes_no
 from common.keyboards.stop import stop_keyboard
-from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting, active_votes, handle_mafia_results, get_info_for_game, night, active_votes_mafia
+from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting, active_votes, handle_mafia_results, get_info_for_game, night, active_votes_mafia, active_votes_commissioner, handle_user_commissioner_info_results
 from bot import dp
 router = Router()
 
@@ -48,6 +48,22 @@ async def mafia_vote(callback: CallbackQuery, state: FSMContext):
     
     await callback.message.edit_text("✅ Ви обрали! Обробляємо результати...")
     await handle_mafia_results(callback.message, state, user, npcs, mafia_vote)
+    
+ 
+@router.callback_query(F.data.startswith("commissioner_vote_"))
+async def mafia_vote(callback: CallbackQuery, state: FSMContext):
+    chat_id = callback.message.chat.id
+    commissioner_vote = callback.data.replace("commissioner_vote_", "")
+    
+    if chat_id not in active_votes_mafia:
+        await callback.message.answer("⚠️ Помилка! Вибір комісара не знайдено")
+        return
+    
+    npcs = active_votes_commissioner[chat_id]["npcs"]
+    user = active_votes_commissioner[chat_id]["user"]
+    
+    await callback.message.edit_text("✅ Ви обрали! Обробляємо результати...")
+    await handle_user_commissioner_info_results(callback.message, state, user, npcs, commissioner_vote)
 
 @router.message(F.text == "Легка")
 async def easy_game(message: types.Message, state: FSMContext):

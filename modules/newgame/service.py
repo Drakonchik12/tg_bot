@@ -29,6 +29,8 @@ active_votes = {}
 
 active_votes_mafia = {}
 
+active_votes_commissioner = {}
+
 def insert_game_result(user_id: int, role: str, result: bool):
 
     game_data = {
@@ -49,11 +51,11 @@ def show_npcs(npcs):
 
 def assign_roles(user, npcs):
     # roles = ["Мирний", "Мирний", "Мафія", "Комісар", "Лікар"]
-    roles = ["Мирний", "Мирний", "Комісар", "Лікар"]
+    roles = ["Мирний", "Мирний", "Мафія", "Лікар"]
     random.shuffle(roles)
     # Призначаємо роль користувачу
     # user.role = roles.pop()
-    user.role = "Мафія"
+    user.role = "Комісар"
     # Призначаємо ролі NPC
     for npc in npcs:
         npc.role = roles.pop()
@@ -242,7 +244,17 @@ async def night(message: types.Message, state:FSMContext, user, npcs):
         await voting(message, state, user, npcs)
         
     elif role == "Комісар":
-        print("🟡 Ви — Комісар! Ви можете перевіряти підозрюваних.")
+        await asyncio.sleep(3)
+        await message.answer("🔪 Мафія у пошуках жертви...")
+
+        await asyncio.sleep(3)
+        await message.answer("🕵️‍♂️ Комісар виходить на перевірку міста...")
+
+        await asyncio.sleep(3)
+        await message.answer("🏥 Лікар оглядає мешканців, шукаючи поранених...")
+        
+        await user_commissioner_info(message, state, npcs, user)
+        
     elif role == "Лікар":
         print("🟢 Ви — Лікар! Ви можете рятувати людей від мафії.")
     else:
@@ -354,5 +366,30 @@ async def handle_mafia_results(message: types.Message, state: FSMContext, user, 
         await voting(message, state, user, npcs)
 
         
+async def user_commissioner_info(message: types.Message, state: FSMContext, npcs, user):
+    keyboard = create_common_keyboard([(npc.name, f"commissioner_vote_{npc.npc_id}") for npc in npcs])
+    chat_id = message.chat.id
+    active_votes_commissioner[chat_id] = {"npcs": npcs, "user": user}
 
+    await message.answer("❔ Оберіть, кого ви хочете перевірити цієї ночі:", reply_markup=keyboard)
     
+    
+async def handle_user_commissioner_info_results(message: types.Message, state: FSMContext, user, npcs, commissioner_vote):
+
+        print("Перевірений:", commissioner_vote)
+        for npc in npcs:
+            if str(npc.npc_id) == str(commissioner_vote):
+                if npc.role == "Мафія":
+           
+                    await message.answer(f"Так, {npc.name} є мафією, перевірка вдалася")
+                    break
+                else:
+                    await message.answer(f"Ні, {npc.name} нажаль не мафія, спробуйте ще раз наступної ночі")
+                    break
+
+        doctor_ch = await doctor_choice(user, npcs)
+        npcs = await mafia_kill(npcs, user, doctor_ch, message)
+
+        await message.answer("🌅 Наступає ранок. Місто прокидається.")
+        await first_day(message, state, npcs, user)
+        await voting(message, state, user, npcs)
