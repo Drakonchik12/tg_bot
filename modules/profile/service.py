@@ -5,13 +5,23 @@ from db import users_collection, games_collection
 
 def count_documents_by_user_id(user_id):
     query = {"user_id": user_id}
-    
     count = games_collection.count_documents(query)
     return count
 
+
+def count_wins_by_user_id(user_id):
+    query = {"user_id": user_id, "result": True}
+    return games_collection.count_documents(query)
+
+def count_losses_by_user_id(user_id):
+    query = {"user_id": user_id, "result": False}
+    return games_collection.count_documents(query)
+
 async def show_user_data(message: types.Message):
     user_id = message.chat.id
-    print(user_id)
+    win_count = count_wins_by_user_id(user_id)
+    loss_count = count_losses_by_user_id(user_id)
+
     game_count = count_documents_by_user_id(user_id)
     user = users_collection.find_one({"tg_id": user_id})
 
@@ -19,7 +29,9 @@ async def show_user_data(message: types.Message):
         await message.answer(
             f"🆔 Ваш ID: {user_id}\n"
             f"👤 Ваш нікнейм: {user['nickname']}\n"
-            f"🎮 Кількість зіграних ігор: {game_count}",
+            f"🎮 Всього ігор: {game_count}\n"
+            f"✅ Перемог: {win_count}\n"
+            f"❌ Поразок: {loss_count}",
             reply_markup=edit_nickname_keyboard
         )
     else:

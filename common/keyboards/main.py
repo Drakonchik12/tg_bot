@@ -2,8 +2,8 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 main_keyboard = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="Мої дані"), KeyboardButton(text="Мої ігри")],
-        [KeyboardButton(text="Допомога"), KeyboardButton(text="Нова гра")]
+        [KeyboardButton(text="Мої дані"), KeyboardButton(text="Допомога")],
+        [KeyboardButton(text="Нова гра")]
     ],
     resize_keyboard=True
 )

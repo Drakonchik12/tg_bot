@@ -5,7 +5,7 @@ from common.keyboards.difficult import difficulty_keyboard
 from common.keyboards.ok import ok_keyboard
 from common.keyboards.yes_no import keyboard_yes_no
 from common.keyboards.stop import stop_keyboard
-from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting, active_votes
+from modules.newgame.service import handle_voting_results, first_npc_messages, first_night, get_info_for_game, voting, active_votes, handle_mafia_results, get_info_for_game, night, active_votes_mafia
 from bot import dp
 router = Router()
 
@@ -13,6 +13,7 @@ router = Router()
 @router.message(F.text == "Нова гра")
 async def new_game(message: types.Message):
     await message.answer("Оберіть рівень складності:", reply_markup=difficulty_keyboard)
+
 @router.callback_query(F.data.startswith("vote_"))
 async def process_vote(callback: CallbackQuery, state: FSMContext):
     chat_id = callback.message.chat.id
@@ -32,6 +33,21 @@ async def process_vote(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text("✅ Ви проголосували! Обробляємо результати...")
 
     await handle_voting_results(callback.message, state, user, npcs, votes)
+    
+@router.callback_query(F.data.startswith("mafia_kill_"))
+async def mafia_vote(callback: CallbackQuery, state: FSMContext):
+    chat_id = callback.message.chat.id
+    mafia_vote = callback.data.replace("mafia_kill_", "")
+    
+    if chat_id not in active_votes_mafia:
+        await callback.message.answer("⚠️ Помилка! Вибір мафії не знайдено")
+        return
+    
+    npcs = active_votes_mafia[chat_id]["npcs"]
+    user = active_votes_mafia[chat_id]["user"]
+    
+    await callback.message.edit_text("✅ Ви обрали! Обробляємо результати...")
+    await handle_mafia_results(callback.message, state, user, npcs, mafia_vote)
 
 @router.message(F.text == "Легка")
 async def easy_game(message: types.Message, state: FSMContext):
@@ -57,3 +73,9 @@ async def easy_game_first_voit_yes(message: types.Message, state: FSMContext):
 @router.message(F.text == "Ні")
 async def easy_game_first_voit_no(message: types.Message, state: FSMContext):
    print("Ні")
+   user, npcs = get_info_for_game()
+   await message.answer("Нагадуємо ви можете завершити гру в будь який момент", reply_markup=stop_keyboard)
+   chat_id = message.chat.id
+   active_votes_mafia[chat_id] = {"npcs": npcs, "user": user}
+   await night(message, state, user, npcs)
+
